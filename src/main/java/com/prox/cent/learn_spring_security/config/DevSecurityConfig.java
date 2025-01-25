@@ -16,11 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @Profile("dev")
-public class SecurityConfig {
+public class DevSecurityConfig {
 
   @Bean
   public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
-    UserDetails user = User.withUsername("user")
+    UserDetails dev = User.withUsername("dev")
         .password(passwordEncoder.encode("password"))
         .roles("USER")
         .build();
@@ -30,7 +30,7 @@ public class SecurityConfig {
         .roles("USER", "ADMIN")
         .build();
 
-    return new InMemoryUserDetailsManager(user, admin);
+    return new InMemoryUserDetailsManager(dev, admin);
   }
 
   @Bean
