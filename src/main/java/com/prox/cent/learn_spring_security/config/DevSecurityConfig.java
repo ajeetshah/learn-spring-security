@@ -6,8 +6,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -19,7 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class DevSecurityConfig {
 
   @Bean
-  public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
+  public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
     UserDetails dev = User.withUsername("dev")
         .password(passwordEncoder.encode("password"))
         .roles("USER")
@@ -35,12 +38,12 @@ public class DevSecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http.authorizeHttpRequests(request ->
-            request.requestMatchers("/greeting/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated())
+    return http.csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(request -> request
+            .requestMatchers("/greeting/**").permitAll()
+            .anyRequest().authenticated())
         .httpBasic(Customizer.withDefaults())
+        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .build();
   }
 
